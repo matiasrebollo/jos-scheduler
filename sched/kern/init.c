@@ -69,8 +69,6 @@ i386_init(void)
 #else
 	// Touch all you want.
 	ENV_CREATE(user_hello, ENV_TYPE_USER);
-	ENV_CREATE(user_hello, ENV_TYPE_USER);
-	ENV_CREATE(user_hello, ENV_TYPE_USER);
 #endif  // TEST*
 
 	// Eliminar esta llamada una vez completada la parte 1
@@ -78,7 +76,7 @@ i386_init(void)
 	env_run(&envs[0]);
 
 	// Schedule and run the first user environment!
-	// sched_yield();
+	//sched_yield();
 }
 
 // While boot_aps is booting a given CPU, it communicates the per-core
