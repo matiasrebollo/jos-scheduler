@@ -27,7 +27,25 @@ sched_yield(void)
 	// no runnable environments, simply drop through to the code
 	// below to halt the cpu.
 
-	// Your code here - Round robin
+	int current_index = 0;
+
+	if (curenv) {
+		current_index = ENVX(curenv->env_id) + 1; //calculo el indice del proceso siguiente al que voy a frenar
+	}
+
+	for (int i = 0; i < NENV; i++) {
+		int index = (current_index + i) % NENV; // para hacerlo circular
+
+		if (envs[index].env_status == ENV_RUNNABLE) { //me fijo si el proceso es RUNNABLE y si lo es, lo elijo.
+			env_run(&envs[index]);
+		}
+	}
+ 
+	// si el for no encontro ningun proceso runnable, y el anterior sigue estando en estado RUNNING (porque quizas termino en el medio), lo elijo.
+	if (curenv && (curenv->env_status == ENV_RUNNING)){
+		env_run(curenv);
+	}
+	
 #endif
 
 #ifdef SCHED_PRIORITIES
@@ -41,11 +59,6 @@ sched_yield(void)
 
 	// Your code here - Priorities
 #endif
-
-	// Without scheduler, keep runing the last environment while it exists
-	if (curenv) {
-		env_run(curenv);
-	}
 
 	// sched_halt never returns
 	sched_halt();
