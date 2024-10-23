@@ -257,6 +257,10 @@ env_alloc(struct Env **newenv_store, envid_t parent_id)
 	// Also clear the IPC receiving flag.
 	e->env_ipc_recving = 0;
 
+	// Set up initial priority queue values.
+	e->env_priority = MAX_PRIORITY;
+	e->q_execution_count = 0;
+
 	// commit the allocation
 	env_free_list = e->env_link;
 	*newenv_store = e;

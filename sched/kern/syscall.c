@@ -151,6 +151,7 @@ sys_exofork(void)
 	newenv->env_status = ENV_NOT_RUNNABLE;
 	newenv->env_tf = curenv->env_tf;
 	newenv->env_tf.tf_regs.reg_eax = 0;
+	newenv->env_priority = curenv->env_priority;
 
 	return newenv->env_id;
 	// panic("sys_exofork not implemented");
@@ -429,6 +430,33 @@ sys_ipc_recv(void *dstva)
 	return 0;
 }
 
+// Returns the current environment's priority queue number.
+int
+sys_get_priority(void)
+{
+	return curenv->env_priority;
+}
+
+// Sets the current environment's priority to new_priority.
+//
+// Returns 0 on success, -1 on error. Errors are:
+// -E_BAD_ENV if the environment given by parameter doesn't exist
+// -E_INVAL if new_priority is greater or equal to the env's current priority,
+// or if new_priority is smaller than MIN_PRIORITY
+int
+sys_set_priority(envid_t envid, int new_priority)
+{
+	struct Env *env;
+	if (envid2env(envid, &env, 1) < 0) {
+		return -E_BAD_ENV;
+	}
+	if (new_priority >= env->env_priority || new_priority < MIN_PRIORITY) {
+		return -E_INVAL;
+	}
+	env->env_priority = new_priority;
+	return 0;
+}
+
 // Dispatches to the correct kernel function, passing the arguments.
 int32_t
 syscall(uint32_t syscallno, uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, uint32_t a5)
@@ -464,6 +492,10 @@ syscall(uint32_t syscallno, uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, 
 		return sys_env_set_pgfault_upcall(a1, (void *) a2);
 	case SYS_yield:
 		sys_yield();  // No return
+	case SYS_get_priority:
+		return sys_get_priority();
+	case SYS_set_priority:
+		return sys_set_priority(a1, a2);
 	default:
 		return -E_INVAL;
 	}

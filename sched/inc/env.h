@@ -7,6 +7,10 @@
 #include <inc/trap.h>
 #include <inc/memlayout.h>
 
+#define MAX_PRIORITY 4
+#define MIN_PRIORITY 0
+
+
 typedef int32_t envid_t;
 
 // An environment ID 'envid_t' has three parts:
@@ -46,6 +50,9 @@ struct Env {
 	unsigned env_status;      // Status of the environment
 	uint32_t env_runs;        // Number of times environment has run
 	int env_cpunum;           // The CPU that the env is running on
+
+	int env_priority;  // Current env's priority queue number
+	int q_execution_count;  // Number of times the env has run on its current priority queue
 
 	// Address space
 	pde_t *env_pgdir;  // Kernel virtual address of page dir
