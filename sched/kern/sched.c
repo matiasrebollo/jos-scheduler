@@ -71,21 +71,31 @@ sched_yield(void)
 	// environment is selected and run every time.
 
 	// Your code here - Priorities
+	executions++;
+	if (executions >=
+	    EXECS_BEFORE_UPGRADE) {  // After EXECS_BEFORE_UPGRADE execs, all jobs
+		                     // are upgraded and their queue values are reset.
+		int index;
+		for (int i = 0; i < NENV; i++) {
+			envs[i].env_priority = MAX_PRIORITY;
+			envs[i].q_execution_count = 0;
+		}
+		executions = 0;
+	}
 
 	struct Env *env = NULL;
 	int current_index = 0;
-
 	if (curenv) {
 		current_index = ENVX(curenv->env_id) + 1;
 	}
-
 	int current_priority = MIN_PRIORITY;
 
-	for (int i = (current_index % NENV); i < NENV; i++) {
-		if (envs[i].env_status == ENV_RUNNABLE &&
-		    envs[i].env_priority >
+	for (int i = 0; i < NENV; i++) {
+		int index = (current_index + i) % NENV;
+		if (envs[index].env_status == ENV_RUNNABLE &&
+		    envs[index].env_priority >
 		            current_priority) {  // If env is RUNNABLE and has better priority, it's selected
-			env = &envs[i];
+			env = &envs[index];
 			current_priority = env->env_priority;
 		}
 	}
@@ -106,16 +116,6 @@ sched_yield(void)
 		sched_halt();
 	}
 
-	executions++;
-	if (executions >=
-	    EXECS_BEFORE_UPGRADE) {  // After EXECS_BEFORE_UPGRADE execs, all jobs
-		                     // are upgraded and their queue values are reset.
-		int index;
-		for (int i = 0; i < NENV; i++) {
-			envs[i].env_priority = MAX_PRIORITY;
-			envs[i].q_execution_count = 0;
-		}
-	}
 
 #endif
 
