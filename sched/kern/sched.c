@@ -39,17 +39,18 @@ sched_yield(void)
 
 	int current_index = 0;
 	sched_calls++;
+	// Siguiente indice
 	if (curenv) {
 		current_index =
 		        ENVX(curenv->env_id) +
-		        1;  // calculo el indice del proceso siguiente al que voy a frenar
+		        1;  
 	}
 
 	for (int i = 0; i < NENV; i++) {
-		int index = (current_index + i) % NENV;  // para hacerlo circular
+		int index = (current_index + i) % NENV;  
 
 		if (envs[index].env_status ==
-		    ENV_RUNNABLE) {  // me fijo si el proceso es RUNNABLE y si lo es, lo elijo.
+		    ENV_RUNNABLE) {  
 			envs[index].n_exec++;
 			if(exec_order_index < 1000){
 				exec_order[exec_order_index] = envs[index].env_id;
@@ -59,8 +60,7 @@ sched_yield(void)
 		}
 	}
 
-	// si el for no encontro ningun proceso runnable, y el anterior sigue estando
-	// en estado RUNNING (porque quizas termino en el medio), lo elijo.
+	// Env anterior
 	if (curenv && (curenv->env_status == ENV_RUNNING)) {
 		env_run(curenv);
 	}
@@ -117,14 +117,14 @@ sched_yield(void)
 			env->env_priority--;
 			env->q_execution_count = 0;
 		}
-		exec_order[exec_order_index] = env->env_id;
-		exec_order_index++;
+		if (exec_order_index < 1000){
+			exec_order[exec_order_index] = env->env_id;
+			exec_order_index++;
+		}
 		env_run(env);
 		
 	} else if (curenv && (curenv->env_status == ENV_RUNNING)) {
 		env_run(curenv);
-	} else {
-		sched_halt();
 	}
 
 
