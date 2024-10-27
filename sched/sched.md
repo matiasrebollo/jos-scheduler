@@ -1,5 +1,15 @@
 # sched
 
+# Parte 1
+Las imagenes se encuentran en la carpeta "seguimiento_parte1"
+Primero ponemos un breakpoint en context_switch (imagen1)
+Luego empezamos a ejecutar desde ese punto y vemos el estado actual de los registros (imagen2) 
+Luego vemos el estado de stack (imagen3)
+Despues vamos avanzando de a paso y viendo como cambia el stack (imagenes 4 a 8)
+Luego vemos los registros antes de llamar a iret (imagen9)
+Y finalmente vemos como se cambian los registros luego de ejecutar iret(imagen10)
+
+
 # Parte 3
 
 En la parte de kern/init.c, probamos con distintos entornos de usuario los cuales nos fueron provistos por el esqueleto, para ver con las estadísticas como trabaja el scheduler con prioridades y compararlo con el Round Robin.

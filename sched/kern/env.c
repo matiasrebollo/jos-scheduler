@@ -16,7 +16,7 @@
 #include <kern/spinlock.h>
 
 
-tuple stats[100];
+tuple stats[1000];
 int exec_order[1000];
 int stats_size = 0;
 int exec_order_index = 0;
@@ -420,10 +420,12 @@ env_free(struct Env *e)
 	pte_t *pt;
 	uint32_t pdeno, pteno;
 	physaddr_t pa;
-	stats[stats_size].env_runs= e->env_runs;
-	stats[stats_size].env_selections = e->n_exec;
-	stats[stats_size].env_id = e->env_id;
-	stats_size++;
+	if(stats_size < 1000){
+		stats[stats_size].env_runs= e->env_runs;
+		stats[stats_size].env_selections = e->n_exec;
+		stats[stats_size].env_id = e->env_id;
+		stats_size++;
+	}
 	// If freeing the current environment, switch to kern_pgdir
 	// before freeing the page directory, just in case the page
 	// gets reused.

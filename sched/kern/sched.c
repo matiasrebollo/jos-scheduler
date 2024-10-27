@@ -51,8 +51,10 @@ sched_yield(void)
 		if (envs[index].env_status ==
 		    ENV_RUNNABLE) {  // me fijo si el proceso es RUNNABLE y si lo es, lo elijo.
 			envs[index].n_exec++;
-			exec_order[exec_order_index] = envs[index].env_id;
-			exec_order_index++;
+			if(exec_order_index < 1000){
+				exec_order[exec_order_index] = envs[index].env_id;
+				exec_order_index++;
+			}
 			env_run(&envs[index]);
 		}
 	}

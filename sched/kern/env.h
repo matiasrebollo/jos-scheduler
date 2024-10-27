@@ -15,7 +15,7 @@ typedef struct{
 extern struct Env *envs;           // All environments
 #define curenv (thiscpu->cpu_env)  // Current environment
 extern struct Segdesc gdt[];
-extern tuple stats[100];
+extern tuple stats[1000];
 extern int exec_order[1000];
 extern int stats_size;
 extern int exec_order_index;
