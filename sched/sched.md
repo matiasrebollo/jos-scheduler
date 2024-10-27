@@ -12,6 +12,18 @@ Y finalmente vemos como se cambian los registros luego de ejecutar iret(imagen10
 
 # Parte 3
 
+## Funcionamiento
+
+Nuestro scheduler por prioridades es del tipo Multi-level Feedback Queue (MLFQ), basado en un sistema de cola de prioridades con 5 niveles, siendo q4 la cola de mayor prioridad y q0 la menor. En un principio, todos los procesos comienzan en la cola de mayor prioridad (q4), y se establecen sus contadores del proceso de ejecuciones en la cola actual en 0.
+
+La selección del siguiente proceso a correr comienza en la cola de mayor prioridad, y sino hay procesos listos en esa cola, se continúa por la cola de prioridad inferior hasta acabar en q0. En una misma cola, se aplica la lógica del Round Robin para seleccionar un proceso disponible, y este se ejecuta. Sino se encuentra un proceso para correr, y el proceso actual está en ejecucion, el scheduloer lo vuelve a ejecutar. En caso de no haber ningún proceso disponible, el scheduler entra en un estado de espera (halt).
+
+Una vez elegido un proceso a ejecutar, su contador de ejecuciones en la cola actual aumenta, y una vez que este supera las 10 máximas ejecuciones permitidas, el proceso es degradado a la siguiente cola de menor prioridad, y su contador es reseteado. De esta manera, el scheduler puede aprender sobre el comportamiento de los procesos, y así los procesos más exigentes bajarán su prioridad, lo que le permite al scheduler poder predecir y adaptar su planifiación.
+
+Sin embargo, si hubiese varios procesos en las colas de  mayor prioridad y otros en las menores, podría pasar mucho tiempo hasta que uno de estos últimos sean ejecutados, generándose lo que se llama 'starvation'. Para evitar esto, el scheduler cuenta con un contador el cual aumenta en cada llamado, y así una vez superado el límite de ejecuciones antes de mejora, todas las prioridades de los procesos son reseteados en la cola de mayor prioridad. De esta manera, se garantiza que todos los procesos, independientemente de su demanda, tendrán oportunidad de ser ejecutados.
+
+## Estadísticas
+
 En la parte de kern/init.c, probamos con distintos entornos de usuario los cuales nos fueron provistos por el esqueleto, para ver con las estadísticas como trabaja el scheduler con prioridades y compararlo con el Round Robin.
 
 Se pueden ver los resultados de esto si se ejecuta la linea `make qemu-nox` y si se quiere eliminar o añadir entornos de usuario, se puede hacer borrando o agregando líneas en el archivo de kern/init.c
