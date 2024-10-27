@@ -15,6 +15,11 @@
 #include <kern/cpu.h>
 #include <kern/spinlock.h>
 
+
+tuple stats[100];
+int exec_order[1000];
+int stats_size = 0;
+int exec_order_index = 0;
 struct Env *envs = NULL;           // All environments
 static struct Env *env_free_list;  // Free environment list
                                    // (linked by Env->env_link)
@@ -114,11 +119,13 @@ envid2env(envid_t envid, struct Env **env_store, bool checkperm)
 void
 env_init(void)
 {
+	
 	// Set up envs array
 	for (int i = 0; i < NENV; i++) {
-		envs[i].env_id = 0;
+		envs[i].env_id = i;
 		envs[i].env_status = ENV_FREE;
 		envs[i].env_link = (envs + i + 1);
+		envs[i].n_exec = 0;
 	}
 	envs[NENV - 1].env_link = NULL;
 	env_free_list = envs;
@@ -413,7 +420,10 @@ env_free(struct Env *e)
 	pte_t *pt;
 	uint32_t pdeno, pteno;
 	physaddr_t pa;
-
+	stats[stats_size].env_runs= e->env_runs;
+	stats[stats_size].env_selections = e->n_exec;
+	stats[stats_size].env_id = e->env_id;
+	stats_size++;
 	// If freeing the current environment, switch to kern_pgdir
 	// before freeing the page directory, just in case the page
 	// gets reused.
@@ -521,6 +531,7 @@ env_run(struct Env *e)
 	curenv = e;
 	curenv->env_status = ENV_RUNNING;
 	curenv->env_runs++;
+	
 
 	env_load_pgdir(curenv);
 

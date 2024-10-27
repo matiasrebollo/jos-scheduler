@@ -6,10 +6,19 @@
 #include <inc/env.h>
 #include <kern/cpu.h>
 
+typedef struct{
+	int env_runs;
+	int env_id;
+	int env_selections;
+} tuple;
+
 extern struct Env *envs;           // All environments
 #define curenv (thiscpu->cpu_env)  // Current environment
 extern struct Segdesc gdt[];
-
+extern tuple stats[100];
+extern int exec_order[1000];
+extern int stats_size;
+extern int exec_order_index;
 void env_init(void);
 void env_init_percpu(void);
 int env_alloc(struct Env **e, envid_t parent_id);

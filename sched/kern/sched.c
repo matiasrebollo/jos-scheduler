@@ -15,6 +15,7 @@
 void sched_halt(void);
 
 int executions = 0;
+int sched_calls = 0;
 
 // Choose a user environment to run and run it.
 void
@@ -37,7 +38,7 @@ sched_yield(void)
 	// below to halt the cpu.
 
 	int current_index = 0;
-
+	sched_calls++;
 	if (curenv) {
 		current_index =
 		        ENVX(curenv->env_id) +
@@ -49,6 +50,9 @@ sched_yield(void)
 
 		if (envs[index].env_status ==
 		    ENV_RUNNABLE) {  // me fijo si el proceso es RUNNABLE y si lo es, lo elijo.
+			envs[index].n_exec++;
+			exec_order[exec_order_index] = envs[index].env_id;
+			exec_order_index++;
 			env_run(&envs[index]);
 		}
 	}
@@ -71,41 +75,7 @@ sched_yield(void)
 	// environment is selected and run every time.
 
 	// Your code here - Priorities
-
-	struct Env *env = NULL;
-	int current_index = 0;
-
-	if (curenv) {
-		current_index = ENVX(curenv->env_id) + 1;
-	}
-
-	int current_priority = MIN_PRIORITY;
-
-	for (int i = (current_index % NENV); i < NENV; i++) {
-		if (envs[i].env_status == ENV_RUNNABLE &&
-		    envs[i].env_priority >
-		            current_priority) {  // If env is RUNNABLE and has better priority, it's selected
-			env = &envs[i];
-			current_priority = env->env_priority;
-		}
-	}
-
-	if (env) {
-		env_run(env);
-		env->q_execution_count++;
-		if (env->q_execution_count >= MAX_EXECS &&
-		    env->env_priority >
-		            MIN_PRIORITY) {  // env is downgraded when has excedeed
-			                     // number of MAX_EXECS and it's not on the lowest queue
-			env->env_priority--;
-			env->q_execution_count = 0;
-		}
-	} else if (curenv && (curenv->env_status == ENV_RUNNING)) {
-		env_run(curenv);
-	} else {
-		sched_halt();
-	}
-
+	sched_calls++;
 	executions++;
 	if (executions >=
 	    EXECS_BEFORE_UPGRADE) {  // After EXECS_BEFORE_UPGRADE execs, all jobs
@@ -115,10 +85,49 @@ sched_yield(void)
 			envs[i].env_priority = MAX_PRIORITY;
 			envs[i].q_execution_count = 0;
 		}
+		executions = 0;
 	}
 
-#endif
+	struct Env *env = NULL;
+	int current_index = 0;
+	if (curenv) {
+		current_index = ENVX(curenv->env_id) + 1;
+	}
+	int current_priority = MIN_PRIORITY;
 
+	for (int i = 0; i < NENV; i++) {
+		int index = (current_index + i) % NENV;
+		if (envs[index].env_status == ENV_RUNNABLE &&
+		    envs[index].env_priority >
+		            current_priority) {  // If env is RUNNABLE and has better priority, it's selected
+			env = &envs[index];
+			current_priority = env->env_priority;
+		}
+	}
+
+	if (env) {
+		env->n_exec++;
+		env->q_execution_count++;
+		if (env->q_execution_count >= MAX_EXECS &&
+		    env->env_priority >
+		            MIN_PRIORITY) {  // env is downgraded when has excedeed
+			                     // number of MAX_EXECS and it's not on the lowest queue
+			env->env_priority--;
+			env->q_execution_count = 0;
+		}
+		exec_order[exec_order_index] = env->env_id;
+		exec_order_index++;
+		env_run(env);
+		
+	} else if (curenv && (curenv->env_status == ENV_RUNNING)) {
+		env_run(curenv);
+	} else {
+		sched_halt();
+	}
+
+
+#endif
+	
 	// sched_halt never returns
 	sched_halt();
 }
@@ -141,10 +150,22 @@ sched_halt(void)
 	}
 	if (i == NENV) {
 		cprintf("No runnable environments in the system!\n");
-		while (1)
+		cprintf("Stats: \n");
+		cprintf("Sched_calls: %d \n", sched_calls);
+		for(i=0; i <stats_size ; i++){
+			cprintf("Process %d executed %d time slices and was selected %d times by the scheduler\n",stats[i].env_id, stats[i].env_runs, stats[i].env_selections);
+
+		}
+		cprintf("Orden \n");
+		for(i=0; i < exec_order_index; i++){
+			cprintf("%d, ", exec_order[i]);
+		}
+		cprintf("\n");
+		while(1)
 			monitor(NULL);
 	}
 
+	
 	// Mark that no environment is running on this CPU
 	curenv = NULL;
 	lcr3(PADDR(kern_pgdir));
@@ -159,6 +180,7 @@ sched_halt(void)
 
 	// Once the scheduler has finishied it's work, print statistics
 	// on performance. Your code here
+	
 
 	// Reset stack pointer, enable interrupts and then halt.
 	asm volatile("movl $0, %%ebp\n"
@@ -171,4 +193,5 @@ sched_halt(void)
 	             "jmp 1b\n"
 	             :
 	             : "a"(thiscpu->cpu_ts.ts_esp0));
+	
 }
