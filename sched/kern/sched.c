@@ -41,18 +41,15 @@ sched_yield(void)
 	sched_calls++;
 	// Siguiente indice
 	if (curenv) {
-		current_index =
-		        ENVX(curenv->env_id) +
-		        1;  
+		current_index = ENVX(curenv->env_id) + 1;
 	}
 
 	for (int i = 0; i < NENV; i++) {
-		int index = (current_index + i) % NENV;  
+		int index = (current_index + i) % NENV;
 
-		if (envs[index].env_status ==
-		    ENV_RUNNABLE) {  
+		if (envs[index].env_status == ENV_RUNNABLE) {
 			envs[index].n_exec++;
-			if(exec_order_index < 1000){
+			if (exec_order_index < 1000) {
 				exec_order[exec_order_index] = envs[index].env_id;
 				exec_order_index++;
 			}
@@ -117,19 +114,19 @@ sched_yield(void)
 			env->env_priority--;
 			env->q_execution_count = 0;
 		}
-		if (exec_order_index < 1000){
+		if (exec_order_index < 1000) {
 			exec_order[exec_order_index] = env->env_id;
 			exec_order_index++;
 		}
 		env_run(env);
-		
+
 	} else if (curenv && (curenv->env_status == ENV_RUNNING)) {
 		env_run(curenv);
 	}
 
 
 #endif
-	
+
 	// sched_halt never returns
 	sched_halt();
 }
@@ -154,20 +151,23 @@ sched_halt(void)
 		cprintf("No runnable environments in the system!\n");
 		cprintf("Stats: \n");
 		cprintf("Sched_calls: %d \n", sched_calls);
-		for(i=0; i <stats_size ; i++){
-			cprintf("Process %d executed %d time slices and was selected %d times by the scheduler\n",stats[i].env_id, stats[i].env_runs, stats[i].env_selections);
-
+		for (i = 0; i < stats_size; i++) {
+			cprintf("Process %d executed %d time slices and was "
+			        "selected %d times by the scheduler\n",
+			        stats[i].env_id,
+			        stats[i].env_runs,
+			        stats[i].env_selections);
 		}
 		cprintf("Orden \n");
-		for(i=0; i < exec_order_index; i++){
+		for (i = 0; i < exec_order_index; i++) {
 			cprintf("%d, ", exec_order[i]);
 		}
 		cprintf("\n");
-		while(1)
+		while (1)
 			monitor(NULL);
 	}
 
-	
+
 	// Mark that no environment is running on this CPU
 	curenv = NULL;
 	lcr3(PADDR(kern_pgdir));
@@ -182,7 +182,7 @@ sched_halt(void)
 
 	// Once the scheduler has finishied it's work, print statistics
 	// on performance. Your code here
-	
+
 
 	// Reset stack pointer, enable interrupts and then halt.
 	asm volatile("movl $0, %%ebp\n"
@@ -195,5 +195,4 @@ sched_halt(void)
 	             "jmp 1b\n"
 	             :
 	             : "a"(thiscpu->cpu_ts.ts_esp0));
-	
 }

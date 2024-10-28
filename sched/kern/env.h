@@ -6,7 +6,7 @@
 #include <inc/env.h>
 #include <kern/cpu.h>
 
-typedef struct{
+typedef struct {
 	int env_runs;
 	int env_id;
 	int env_selections;

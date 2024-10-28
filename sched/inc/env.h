@@ -53,7 +53,7 @@ struct Env {
 
 	int env_priority;  // Current env's priority queue number
 	int q_execution_count;  // Number of times the env has run on its current priority queue
-	int n_exec; //Number of executions without considering consecutive runs
+	int n_exec;  // Number of executions without considering consecutive runs
 	// Address space
 	pde_t *env_pgdir;  // Kernel virtual address of page dir
 

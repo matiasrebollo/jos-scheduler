@@ -119,7 +119,6 @@ envid2env(envid_t envid, struct Env **env_store, bool checkperm)
 void
 env_init(void)
 {
-	
 	// Set up envs array
 	for (int i = 0; i < NENV; i++) {
 		envs[i].env_id = i;
@@ -420,8 +419,8 @@ env_free(struct Env *e)
 	pte_t *pt;
 	uint32_t pdeno, pteno;
 	physaddr_t pa;
-	if(stats_size < 1000){
-		stats[stats_size].env_runs= e->env_runs;
+	if (stats_size < 1000) {
+		stats[stats_size].env_runs = e->env_runs;
 		stats[stats_size].env_selections = e->n_exec;
 		stats[stats_size].env_id = e->env_id;
 		stats_size++;
@@ -533,7 +532,7 @@ env_run(struct Env *e)
 	curenv = e;
 	curenv->env_status = ENV_RUNNING;
 	curenv->env_runs++;
-	
+
 
 	env_load_pgdir(curenv);
 
