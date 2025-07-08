@@ -11,7 +11,7 @@ Integrantes:
 - Marcos García Neira
 - Sabrina García Lucentini
 
-# Mi contribución
+#### Mi contribución
 
 Implementación del scheduler Round Robin (Parte 2).
 
