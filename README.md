@@ -60,4 +60,4 @@ Requisitos: GCC, GNU Make, QEMU
 - Emulador: QEMU
 - Compilación: `make`
 
-
+Este proyecto fue desarrollado como parte del trabajo práctico de Sistemas Operativos (FIUBA) – Grupo 25 – Cátedra Méndez-Fresia.
